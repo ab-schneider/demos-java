@@ -3,6 +3,7 @@ name: PR build check (Compile against Java 25 using Maven)
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,3 +30,32 @@ jobs:
 
       - name: Maven clean install (compile only)
         run: mvn -B -ntp -DskipTests clean install
+
+      - name: Smoke run demos (fail on runtime exceptions)
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tmp
+          export JAVA_TOOL_OPTIONS="-Djava.io.tmpdir=$(pwd)/tmp"
+      
+          java --enable-preview --add-modules=jdk.incubator.vector \
+               -jar target/JavaDemos-25.0.jar > run.log 2>&1 || {
+            echo "Non-zero exit code:"
+            cat run.log
+            exit 1
+          }
+      
+          # Fail if stack trace frames OR 'Exception in thread "main"' appear
+          if grep -F -q 'Exception in thread "main"'; then
+            echo "Detected stack trace or 'Exception in thread \"main\"':"
+            cat run.log
+            exit 1
+          fi   
+
+      - name: Upload run.log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-log
+          path: run.log
