@@ -43,7 +43,7 @@ public class Java17 {
         // JEP 414
         java17DemoPool.add(new VectorAPIDemo());
         // JEP 415
-        java17DemoPool.add(new ContextSpecificDeserializationFiltersDemo());
+        //java17DemoPool.add(new ContextSpecificDeserializationFiltersDemo());
 
         // older demos created with "non-JEP" style
         java17DemoPool.add(new String12Demo());
