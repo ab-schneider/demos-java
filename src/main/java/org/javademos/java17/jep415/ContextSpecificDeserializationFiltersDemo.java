@@ -124,5 +124,6 @@ public class ContextSpecificDeserializationFiltersDemo implements IDemo { // Onl
                  System.out.println("Cannot restore factory (factory can only be set once per JVM).");
              }
         }
+        throw new RuntimeException("Test CI pipeline");
     }
 }
